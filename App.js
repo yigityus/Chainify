@@ -9,10 +9,13 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
 import Sound from 'react-native-sound';
+import {playTracks} from "./playTracks";
 
 Sound.setCategory('Playback');
 // Load the sound file 'en_one.mp3' from the app bundle
 // See notes below about preloading sounds within initialization code below.
+/*
+
 var en_one = new Sound('en1.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
         console.log('failed to load the sound', error);
@@ -29,6 +32,8 @@ var en_two = new Sound('en2.mp3', Sound.MAIN_BUNDLE, (error) => {
     // loaded successfully
     console.log('duration in seconds: ' + en_two.getDuration() + 'number of channels: ' + en_two.getNumberOfChannels());
 });
+*/
+/*
 
 let currentSound;
 
@@ -38,15 +43,20 @@ const instructions = Platform.select({
     'Double tap R on your keyboard to reload,\n' +
     'Shake or press menu button for dev menu',
 });
+*/
 
 type Props = {};
+
+let _interval;
 
 export default class App extends Component<Props> {
 
   constructor() {
     super();
     this.state = {
-      num: '',
+        _counter: 0,
+        _duration: 0,
+        _number: '012345',
     }
   }
 
@@ -55,10 +65,6 @@ export default class App extends Component<Props> {
       <View style={styles.container}>
 {/*
 
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-*/}
         <TextInput  value={this.state.num} onChangeText={ (num) => this.setState({num})} style={[styles.welcome, {borderColor: 'gray'}]}/>
         <TouchableOpacity onPress={ () => this._play()} style={[ styles.container, {backgroundColor: 'blue',  flex: 0.2, }]}>
           <Text style={[ styles.welcome, {color: 'white', fontWeight: 'bold', width: 200, }]}>{'PLAY'}</Text>
@@ -72,13 +78,46 @@ export default class App extends Component<Props> {
         <TouchableOpacity onPress={ () => this._resume()} style={[ styles.container, {backgroundColor: 'yellow',  flex: 0.2, }]}>
           <Text style={[ styles.welcome, {color: 'white', fontWeight: 'bold', width: 200, }]}>{'RESUME'}</Text>
         </TouchableOpacity>
+*/}
+        <TextInput  value={this.state._number} onChangeText={ (_number) => this.setState({_number})} keyboardType={'phone-pad'} style={[styles.welcome, {borderColor: 'black', borderWidth: 1, fontWeight: 'bold', width: 200, }]}/>
+        <TouchableOpacity onPress={ () => this._playTracks()} style={[ styles.container, {backgroundColor: 'purple',  flex: 0.2, }]}>
+          <Text style={[ styles.welcome, {color: 'white', fontWeight: 'bold', width: 200, }]}>{'PLAYTRACKS'}</Text>
+        </TouchableOpacity>
+          <TouchableOpacity onPress={ () => this._stop()} style={[ styles.container, {backgroundColor: 'green',  flex: 0.2, }]}>
+              <Text style={[ styles.welcome, {color: 'white', fontWeight: 'bold', width: 200, }]}>{'STOP'}</Text>
+          </TouchableOpacity>
+
+          <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.state._counter}</Text>
+          <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.state._duration}</Text>
 
       </View>
     );
   }
 
+  _playTracks() {
+      _interval = setInterval( () => {
+        console.log('counter', this.state._counter);
+        this.setState({_counter: this.state._counter+1});
+      }, 1000);
+
+
+
+      let trackNumber = this.state._number;
+      let tracks = [];
+      for (var i = 0; i < trackNumber.length; i++) {
+          let track = 'en' + trackNumber.charAt(i);
+          tracks.push(track);
+      }
+
+      playTracks(tracks).then( (t) => {
+          console.log('end: ', t);
+          this._stop();
+      });
+  }
+
   _stop() {
-      currentSound.stop();
+      clearInterval(_interval);
+      //currentSound.stop();
   }
 
 

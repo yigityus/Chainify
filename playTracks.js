@@ -3,77 +3,57 @@ import Sound from 'react-native-sound';
 let currentTrackSound;
 let loadedTrackSounds = [];
 
-export function playTracks(tracks) {
 
-    let trackSoundsDuration = 0;
-
-    _loadTracks(tracks).then( () => {
-        console.log('loaded ');
-        console.log('loadedTrackSounds ', loadedTrackSounds);
-
-
-
-        _playTracks(loadedTrackSounds).then( () => {
-            console.log('successfully finished playing tracks.');
-            loadedTrackSounds = [];
-        });
-        console.log('start playing tracks.');
-
-    }) ;
-
-
-/*
-
-    let lp = _loadTracks(tracks).then( (loadedPromise) => {
-        console.log('loaded');
-        console.log('loadedPromise ', loadedPromise);
-        console.log('lp ', lp);
-    });
-
-*/
-}
-
-
-_loadTracks = function (trackSounds) {
-
-    var p = Promise.resolve();
-
-    trackSounds.forEach(trackSound => {
-        p = p.then(() =>  {
-            let loadedTrackSound = _loadTrack(trackSound);
-
-            console.log('trackSound ', trackSound);
-            console.log('loadedTrackSound ', loadedTrackSound);
-
-
-        })
-    });
-
-    return p;
-};
-
-_loadTrack = function (trackSound) {
-
-    console.log('trackSound ', trackSound);
-
+_loadTrackSound = function (trackSound) {
     return new Promise((resolve, reject) => {
 
         let trackSoundLoad = new Sound(trackSound + '.mp3', Sound.MAIN_BUNDLE, (error) => {
-
             if (error) {
                 console.log('failed to load the sound: ' + trackSound, error);
                 reject('failed to load the sound: ' + trackSound + ' ' + error)
             } else {
-
                 console.log('track duration: ' + trackSound, trackSoundLoad.getDuration());
-                trackSoundLoad.trackSoundDuration = trackSoundLoad.getDuration();
                 console.log('trackSoundLoad ', trackSoundLoad);
-                loadedTrackSounds.push(trackSoundLoad);
                 resolve(trackSoundLoad);
             }
         });
     });
-};
+}
+
+_loadTrackSounds = function (trackSounds) {
+    return trackSounds.reduce((promise, track) => {
+        return promise
+            .then((trackSound) => {
+                console.log('item: ', track);
+                return _loadTrackSound(track).then(trackSound => loadedTrackSounds.push(trackSound));
+            })
+            .catch(console.error);
+    }, Promise.resolve());
+}
+
+export function playTracks(tracks) {
+
+    return new Promise((resolve, reject) => {
+
+        _loadTrackSounds(tracks)
+            .then(() => {
+                console.log('loadedTrackSounds: ', loadedTrackSounds);
+                let duration = 0;
+
+                loadedTrackSounds.forEach( (lts) => {
+                    duration += lts._duration;
+                });
+
+                console.log('duration: ', duration);
+
+                _playTracks(loadedTrackSounds).then( () => {
+                    console.log('successfully finished playing tracks.');
+                    loadedTrackSounds = [];
+                    resolve('success');
+                } );
+            });
+    });
+}
 
 
 _playTracks = function (trackSounds) {
@@ -85,8 +65,6 @@ _playTracks = function (trackSounds) {
 
     return p;
 };
-
-
 
 _playTrack = function (trackSound) {
 
