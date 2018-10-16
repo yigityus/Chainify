@@ -10,6 +10,7 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
 import Sound from 'react-native-sound';
 import {playTracks} from "./playTracks";
+import PlaySound from "./PlaySound";
 
 Sound.setCategory('Playback');
 // Load the sound file 'en_one.mp3' from the app bundle
@@ -57,6 +58,8 @@ export default class App extends Component<Props> {
         _counter: 0,
         _duration: 0,
         _number: '012345',
+
+        _tracks: []
     }
   }
 
@@ -79,7 +82,7 @@ export default class App extends Component<Props> {
           <Text style={[ styles.welcome, {color: 'white', fontWeight: 'bold', width: 200, }]}>{'RESUME'}</Text>
         </TouchableOpacity>
 */}
-        <TextInput  value={this.state._number} onChangeText={ (_number) => this.setState({_number})} keyboardType={'phone-pad'} style={[styles.welcome, {borderColor: 'black', borderWidth: 1, fontWeight: 'bold', width: 200, }]}/>
+        <TextInput  value={this.state._number} onChangeText={ (_number) => this._onChangeNumber(_number)} keyboardType={'phone-pad'} style={[styles.welcome, {borderColor: 'black', borderWidth: 1, fontWeight: 'bold', width: 200, }]}/>
         <TouchableOpacity onPress={ () => this._playTracks()} style={[ styles.container, {backgroundColor: 'purple',  flex: 0.2, }]}>
           <Text style={[ styles.welcome, {color: 'white', fontWeight: 'bold', width: 200, }]}>{'PLAYTRACKS'}</Text>
         </TouchableOpacity>
@@ -90,8 +93,33 @@ export default class App extends Component<Props> {
           <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.state._counter}</Text>
           <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.state._duration}</Text>
 
+          <PlaySound tracks={this.state._tracks}/>
+
       </View>
     );
+  }
+
+  _onChangeNumber(_number) {
+      this.setState({_number});
+
+      let tracks = [];
+      for (var i = 0; i < _number.length; i++) {
+          let track = 'en' + _number.charAt(i);
+          tracks.push(track);
+      }
+
+      this.setState({_tracks:tracks});
+
+  }
+
+  _tracks(trackNumber) {
+      //let trackNumber = this.state._number;
+      let tracks = [];
+      for (var i = 0; i < trackNumber.length; i++) {
+          let track = 'en' + trackNumber.charAt(i);
+          tracks.push(track);
+      }
+      return tracks;
   }
 
   _playTracks() {
@@ -108,6 +136,7 @@ export default class App extends Component<Props> {
           let track = 'en' + trackNumber.charAt(i);
           tracks.push(track);
       }
+
 
       playTracks(tracks).then( (t) => {
           console.log('end: ', t);
