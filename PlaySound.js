@@ -5,7 +5,10 @@ import Sound from 'react-native-sound';
 
 Sound.setCategory('Playback');
 
-type Props = {tracks:['en1', 'en2', 'en1', 'en2', 'en1', 'en2']};
+type Props = {
+    tracks: Array<string>,
+    testProp: string,
+}
 
 let _interval;
 
@@ -15,10 +18,15 @@ let loadedTrackSounds = [];
 
 export default class PlaySound extends Component<Props> {
 
+
+    static defaultProps = {
+        tracks: ['en1', 'en2', 'en1', 'en2', 'en1', 'en2'],
+        testProp: 'test 123',
+    };
+
+
     constructor(props) {
         super(props);
-
-        console.log(props);
 
         this.state = {
             _counter: 0,
@@ -41,9 +49,16 @@ export default class PlaySound extends Component<Props> {
                 <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.state._counter}</Text>
                 <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.state._duration}</Text>
                 <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.props.tracks}</Text>
+                <Text style={[ styles.welcome, {color: 'gray', fontWeight: 'bold', width: 200, }]}>{this.props.testProp}</Text>
 
             </View>
         )
+    }
+
+
+    _stop() {
+        clearInterval(_interval);
+        currentTrackSound.stop();
     }
 
 
@@ -52,7 +67,6 @@ export default class PlaySound extends Component<Props> {
             console.log('counter', this.state._counter);
             this.setState({_counter: this.state._counter===0 ? 0 : this.state._counter-1});
         }, 1000);
-
 
         this.playTracks(this.props.tracks).then( (t) => {
             console.log('end: ', t);

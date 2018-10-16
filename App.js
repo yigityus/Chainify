@@ -59,7 +59,7 @@ export default class App extends Component<Props> {
         _duration: 0,
         _number: '012345',
 
-        _tracks: []
+        _tracks: ['en1', 'en2', 'en1', 'en2', 'en1', 'en2'],
     }
   }
 
